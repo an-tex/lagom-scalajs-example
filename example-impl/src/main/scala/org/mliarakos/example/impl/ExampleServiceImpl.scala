@@ -67,7 +67,7 @@ class ExampleServiceImpl extends ExampleService {
     // 0-10: all elements lost
     // 10-15: some (from the beginning) are lost
     // 15+: all are received
-    Thread.sleep(10)
+    //Thread.sleep(10)
     Future.successful(
       Source(1 to 1024)
       // rather use the Thread.sleep above as this is leads to an actual delay of 100ms+ (guess due to akka scheduler precision)
