@@ -4,7 +4,7 @@ import java.util.Base64
 
 import akka.NotUsed
 import akka.stream.Materializer
-import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.{Sink, Source}
 import com.lightbend.lagom.scaladsl.api.transport.TransportException
 import org.mliarakos.example.api.{Ping, Pong}
 import org.scalajs.dom.ext.AjaxException
@@ -26,6 +26,7 @@ object Main {
   private val TICK_ID     = "tick"
   private val ECHO_ID     = "echo"
   private val BINARY_ID   = "binary"
+  private val FAST_ID     = "fast"
 
   private implicit val materializer: Materializer = ExampleClient.application.materializer
   private val client                              = ExampleClient.client
@@ -159,6 +160,20 @@ object Main {
       .onComplete({
         case Success(_)         =>
         case Failure(exception) => displayException(BINARY_ID, exception)
+      })
+  }
+
+  private def fastOnClick(event: Event): Unit = {
+    client.fast
+      .invoke()
+      .flatMap(source =>
+        source
+          .wireTap(println(_))
+          .runWith(Sink.seq)
+      )
+      .onComplete({
+        case Success(elements)  => displaySuccess(FAST_ID, s"Received ${elements.length} elements")
+        case Failure(exception) => displayException(FAST_ID, exception)
       })
   }
 
@@ -303,6 +318,16 @@ object Main {
                 hr,
                 div(`class` := "form-group")(
                   button(`class` := "btn btn-primary", onclick := binaryOnClick _)("Binary")
+                )
+              )
+            ),
+            div(`class` := "card mb-4")(
+              h5(`class` := "card-header")("Fast"),
+              div(id := FAST_ID, `class` := "card-body")(
+                p(`class` := "card-text")("A service call with a fast producer"),
+                hr,
+                div(`class` := "form-group")(
+                  button(`class` := "btn btn-primary", onclick := fastOnClick _)("FastMe")
                 )
               )
             )

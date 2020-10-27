@@ -3,6 +3,7 @@ package org.mliarakos.example.impl
 import akka.NotUsed
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
+import com.lightbend.lagom.scaladsl.api.ServiceCall
 import com.lightbend.lagom.scaladsl.server.ServerServiceCall
 import org.mliarakos.example.api.{ExampleService, NonPositiveIntegerException, Pong}
 
@@ -61,4 +62,16 @@ class ExampleServiceImpl extends ExampleService {
     Future.successful(source)
   }
 
+  override def fast = ServiceCall { _ =>
+    // delay:
+    // 0-10: all elements lost
+    // 10-15: some (from the beginning) are lost
+    // 15+: all are received
+    Thread.sleep(10)
+    Future.successful(
+      Source(1 to 1024)
+      // rather use the Thread.sleep above as this is leads to an actual delay of 100ms+ (guess due to akka scheduler precision)
+      //.initialDelay(1.millis)
+    )
+  }
 }

@@ -22,6 +22,8 @@ trait ExampleService extends Service {
 
   def binary: ServiceCall[NotUsed, Source[ByteString, NotUsed]]
 
+  def fast : ServiceCall[NotUsed, Source[Int, NotUsed]]
+
   override def descriptor: Descriptor = {
     import Service._
     named("example")
@@ -32,7 +34,8 @@ trait ExampleService extends Service {
         restCall(Method.POST, "/ping", ping),
         pathCall("/tick/:interval", tick _),
         pathCall("/echo", echo),
-        pathCall("/binary", binary)
+        pathCall("/binary", binary),
+        pathCall("/fast", fast)
       )
       .withAcls(
         ServiceAcl.forMethodAndPathRegex(Method.OPTIONS, "/.*")
