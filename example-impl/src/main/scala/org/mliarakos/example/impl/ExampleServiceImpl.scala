@@ -62,7 +62,7 @@ class ExampleServiceImpl extends ExampleService {
     Future.successful(source)
   }
 
-  override def fast = ServiceCall { _ =>
+  override def fast = ServerServiceCall { _ =>
     Future.successful(
       Source(1 to 32)
       // without an initial delay (you don't need this if you throttle like below) the publisher has already sent most elements even before the subscriber has connected the source (inside service.invoke().flatMap(...)).
