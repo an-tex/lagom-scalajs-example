@@ -166,13 +166,16 @@ object Main {
   private def fastOnClick(event: Event): Unit = {
     client.fast
       .invoke()
-      .flatMap(source =>
+      .flatMap { source =>
+        println("connected")
         source
           .wireTap(println(_))
           .runWith(Sink.seq)
-      )
+      //.runWith(Sink.ignore)
+      }
       .onComplete({
-        case Success(elements)  => displaySuccess(FAST_ID, s"Received ${elements.length} elements")
+        case Success(elements) => displaySuccess(FAST_ID, s"Received ${elements.length} elements")
+        //case Success(_)         => displaySuccess(FAST_ID, "done")
         case Failure(exception) => displayException(FAST_ID, exception)
       })
   }

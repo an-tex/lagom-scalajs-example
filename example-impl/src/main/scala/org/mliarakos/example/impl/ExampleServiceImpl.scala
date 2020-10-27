@@ -63,15 +63,12 @@ class ExampleServiceImpl extends ExampleService {
   }
 
   override def fast = ServiceCall { _ =>
-    // delay:
-    // 0-10: all elements lost
-    // 10-15: some (from the beginning) are lost
-    // 15+: all are received
-    //Thread.sleep(10)
     Future.successful(
-      Source(1 to 1024)
-      // rather use the Thread.sleep above as this is leads to an actual delay of 100ms+ (guess due to akka scheduler precision)
-      //.initialDelay(1.millis)
+      Source(1 to 32)
+      // without an initial delay (you don't need this if you throttle like below) the publisher has already sent most elements even before the subscriber has connected the source (inside service.invoke().flatMap(...)).
+      //  .initialDelay(100.millis)
+      // without throttle the subscriber is not able to pull elements even just using a Sink.ignore.
+      //  .throttle(1, 20.millis)
     )
   }
 }
